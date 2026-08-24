@@ -23,6 +23,9 @@ h1{font-size:40px;text-align:center;margin:10px 0 6px}
 .g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}
 .card{background:#fff;border-radius:20px;padding:20px;text-align:center;box-shadow:0 4px 14px rgba(0,0,0,.08);cursor:pointer;border:3px solid transparent;transition:transform .1s}
 .card:active{transform:scale(.97)}
+.card.lock{opacity:.5;cursor:not-allowed;filter:grayscale(1)}
+.card.lock:active{transform:none}
+.bt{font-size:24px;font-weight:800;margin:22px 4px 12px;color:#334155}
 .card .ic{font-size:96px;display:block}
 .card .nm{font-weight:700;margin-top:8px;font-size:28px}
 .card .lv{font-size:18px;color:#64748b;margin-top:4px}
@@ -86,7 +89,7 @@ input{font-family:inherit;font-size:28px;padding:12px;border:2px solid #cbd5e1;b
 
     <h1>選一個關卡</h1>
     <p class="sub">每關 5 題，答對加 1 分，答錯不扣分 💛</p>
-    <div class="grid g3" id="topicGrid"></div>
+    <div id="topicGrid"></div>
 
     <div class="foot">
       <button class="btn s" id="btnColl">📖 我的寶可夢圖鑑</button>
@@ -149,8 +152,15 @@ const show = id => ["scLogin","scMain","scQuiz","scColl"].forEach(s => $(s).clas
 
 // ---------- 資料 ----------
 let code = "", me = null, unsub = null;
-const blank = () => ({ name:"皙潔", avatar:"🦄", score:0, collection:[],
-  levels:{animal:1,color:1,number:1}, streak:{animal:0,color:0,number:0} });
+const blank = () => {
+  const levels = {}, streak = {};
+  TOPICS.forEach(t => { levels[t.id] = t.minLev; streak[t.id] = 0; });
+  return { name:"皙潔", avatar:"🦄", score:0, collection:[], levels, streak, seen2:false };
+};
+// 目前等級：不得低於該關的起跳難度（第二批一開始就沒有中文提示）
+const lvOf = t => Math.max(t.minLev, me.levels[t.id] || t.minLev);
+// 第一批三關都到 UNLOCK_LEVEL 才解鎖第二批
+const unlocked2 = () => TOPICS.filter(t => t.batch === 1).every(t => (me.levels[t.id] || 1) >= UNLOCK_LEVEL);
 
 // 沿用加分網站的資料形狀（students / prizes），扭蛋與圖鑑模組可直接共用
 const save = () => setDoc(doc(db, COL, code), { students:[me], prizes:[] });
@@ -186,7 +196,7 @@ function pickVoice(){
 if (TTS){ TTS.onvoiceschanged = pickVoice; pickVoice(); }
 
 let speakTimer = null;
-function speak(text, rate = 0.8){
+function speak(text, rate = 0.9){
   if (!TTS) return;
   clearTimeout(speakTimer);
   try { TTS.cancel(); } catch(e){}
@@ -228,8 +238,9 @@ const shuffle = a => a.slice().sort(() => Math.random() - .5);
 let quiz = null, locked = false;
 
 function startQuiz(topic){
-  const lv = me.levels[topic.id] || 1;
-  const pool = topic.items.filter(it => it.level <= Math.max(1, lv));
+  if (topic.batch === 2 && !unlocked2()) return;
+  const lv = lvOf(topic);
+  const pool = topic.items.filter(it => it.level <= lv);
   quiz = { topic, qs: shuffle(pool.length >= 5 ? pool : topic.items).slice(0,5), i:0, log:[] };
   $("quizTitle").textContent = topic.icon + " " + topic.name + "　第 " + lv + " 級";
   locked = false;
@@ -248,7 +259,7 @@ function faceHTML(topic, item){
 function nextQ(){
   if (quiz.i >= quiz.qs.length) return finishQuiz();
   const topic = quiz.topic, item = quiz.qs[quiz.i];
-  const lv = me.levels[topic.id] || 1, r = rule(lv);
+  const lv = lvOf(topic), r = rule(lv);
 
   $("prog").innerHTML = quiz.qs.map((_, k) =>
     '<div class="dot ' + (quiz.log[k] === true ? 'd' : quiz.log[k] === false ? 'x' : '') + '"></div>').join("");
@@ -278,17 +289,17 @@ function answer(el, ok, item){
     el.classList.add("ok"); beep(true); toast("🎉");
     me.score++;
     me.streak[t] = Math.max(0, me.streak[t] || 0) + 1;
-    if (me.streak[t] >= 4){ me.streak[t] = 0; me.levels[t] = Math.min(4, (me.levels[t] || 1) + 1); }
+    if (me.streak[t] >= 4){ me.streak[t] = 0; me.levels[t] = Math.min(4, lvOf(quiz.topic) + 1); }
     quiz.log[quiz.i] = true; quiz.i++;
-    speak(item.word, .8);
+    speak(item.word, .9);
     save();
     setTimeout(() => { locked = false; nextQ(); }, 950);
   } else {
     el.classList.add("no"); beep(false);
     me.streak[t] = Math.min(0, me.streak[t] || 0) - 1;
-    if (me.streak[t] <= -2){ me.streak[t] = 0; me.levels[t] = Math.max(1, (me.levels[t] || 1) - 1); }
+    if (me.streak[t] <= -2){ me.streak[t] = 0; me.levels[t] = Math.max(quiz.topic.minLev, lvOf(quiz.topic) - 1); }
     quiz.log[quiz.i] = false;   // 記錄答錯，但不扣分、可以再試
-    setTimeout(() => { el.classList.remove("no"); locked = false; speak(item.word, .7); }, 700);
+    setTimeout(() => { el.classList.remove("no"); locked = false; speak(item.word, .9); }, 700);
   }
 }
 
@@ -329,11 +340,31 @@ function render(){
   $("scoreNum").textContent = me.score;
   $("scoreNum2").textContent = me.score;
   $("gachaBox").classList.toggle("hide", me.score < GOAL);
-  $("topicGrid").innerHTML = TOPICS.map(t =>
-    '<div class="card" data-t="' + t.id + '"><span class="ic">' + t.icon + '</span>' +
-    '<div class="nm">' + t.name + '</div><div class="lv">第 ' + (me.levels[t.id] || 1) + ' 級</div></div>').join("");
-  [...$("topicGrid").children].forEach(el =>
+  const open2 = unlocked2();
+  const cardsOf = b => TOPICS.filter(t => t.batch === b).map(t => {
+    const lock = (b === 2 && !open2);
+    return '<div class="card' + (lock ? ' lock' : '') + '" data-t="' + t.id + '">' +
+      '<span class="ic">' + (lock ? "🔒" : t.icon) + '</span>' +
+      '<div class="nm">' + t.name + '</div>' +
+      '<div class="lv">' + (lock ? "還沒解鎖" : "第 " + lvOf(t) + " 級") + '</div></div>';
+  }).join("");
+  $("topicGrid").innerHTML =
+    '<div class="bt">第一批　基礎關卡</div>' + '<div class="grid g3">' + cardsOf(1) + '</div>' +
+    '<div class="bt">第二批　進階關卡' + (open2 ? '' : '　🔒 第一批三關都到第 ' + UNLOCK_LEVEL + ' 級就打開') + '</div>' +
+    '<div class="grid g3">' + cardsOf(2) + '</div>';
+  [...$("topicGrid").querySelectorAll(".card:not(.lock)")].forEach(el =>
     el.onclick = () => startQuiz(TOPICS.find(t => t.id === el.dataset.t)));
+
+  // 剛解鎖第二批：放一次晉級動畫（只放一次）
+  // 注意：render() 由 onSnapshot 觸發，可能正在答題中途 —— 要等回到地圖再放，別打斷她
+  if (open2 && !me.seen2 && !$("scMain").classList.contains("hide")){
+    me.seen2 = true; save();
+    modal('<div style="font-size:80px">🎓</div><h2 style="margin:10px 0">晉級第二批！</h2>' +
+      '<p style="color:#64748b;font-size:20px">解鎖 7 個新關卡：食物、身體、家人、交通、形狀、學校、天氣<br>' +
+      '新關卡比較難，<b>一開始就沒有中文提示</b>喔！<br>第一批隨時都可以回去玩 💛</p>' +
+      '<div style="margin-top:18px"><button class="btn g" id="mOk2">我準備好了！</button></div>');
+    $("mOk2").onclick = closeModal;
+  }
   $("collNum").textContent = me.collection.length;
 }
 
@@ -351,7 +382,7 @@ $("btnLogin").onclick = () => {
   load(c).then(() => show("scMain"));
 };
 $("codeInput").addEventListener("keydown", e => { if (e.key === "Enter") $("btnLogin").click(); });
-$("btnSpeak").onclick    = () => { if (quiz && quiz.qs[quiz.i]) speak(quiz.qs[quiz.i].word, .7); };
+$("btnSpeak").onclick    = () => { if (quiz && quiz.qs[quiz.i]) speak(quiz.qs[quiz.i].word, .9); };
 $("btnBack").onclick     = () => show("scMain");
 $("btnGacha").onclick    = gacha;
 $("btnOut").onclick      = () => { localStorage.removeItem(CODE_KEY); location.reload(); };

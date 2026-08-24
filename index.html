@@ -88,7 +88,7 @@ input{font-family:inherit;font-size:28px;padding:12px;border:2px solid #cbd5e1;b
     </div>
 
     <h1>選一個關卡</h1>
-    <p class="sub">每關 5 題，答對加 1 分，答錯不扣分 💛</p>
+    <p class="sub">每關 5 題，答對加 1 分，答錯扣 0.5 分 💛</p>
     <div id="topicGrid"></div>
 
     <div class="foot">
@@ -155,9 +155,12 @@ let code = "", me = null, unsub = null;
 const blank = () => {
   const levels = {}, streak = {};
   TOPICS.forEach(t => { levels[t.id] = t.minLev; streak[t.id] = 0; });
-  return { name:"皙潔", avatar:"🦄", score:0, collection:[], levels, streak, seen2:false };
+  // srs：每張字卡一筆 { c:連續答對次數, due:下次該出現的時間 }，key 是 "關卡:單字"
+  return { name:"皙潔", avatar:"🦄", score:0, collection:[], levels, streak, srs:{}, seen2:false };
 };
 // 目前等級：不得低於該關的起跳難度（第二批一開始就沒有中文提示）
+// 答錯扣 0.5 分，所以分數可能有小數；整數就不要顯示 .0
+const fmt = n => (Math.round(n * 10) / 10).toString();
 const lvOf = t => Math.max(t.minLev, me.levels[t.id] || t.minLev);
 // 第一批三關都到 UNLOCK_LEVEL 才解鎖第二批
 const unlocked2 = () => TOPICS.filter(t => t.batch === 1).every(t => (me.levels[t.id] || 1) >= UNLOCK_LEVEL);
@@ -196,7 +199,7 @@ function pickVoice(){
 if (TTS){ TTS.onvoiceschanged = pickVoice; pickVoice(); }
 
 let speakTimer = null;
-function speak(text, rate = 0.9){
+function speak(text, rate = 0.85){
   if (!TTS) return;
   clearTimeout(speakTimer);
   try { TTS.cancel(); } catch(e){}
@@ -234,14 +237,60 @@ const rule = lv => ({
 
 const shuffle = a => a.slice().sort(() => Math.random() - .5);
 
+// ---------- SRS 間隔重複（Anki 的邏輯，但沒有那四顆難易度按鈕） ----------
+// 難易度由「她自己連續答對幾次」決定：連續答對 2 次以上，這張卡就隔幾天才再出現。
+// 六歲不會也不該自評「簡單／普通／困難」，所以間隔完全由答題結果推出來。
+const MIN = 60000, DAY = 86400000;
+const GAP = [1*MIN, 10*MIN, 1*DAY, 3*DAY, 7*DAY, 15*DAY, 30*DAY];   // 依 c（連續答對次數）取
+const srsKey = (topic, item) => topic.id + ":" + item.word;
+const srsOf = (topic, item) => (me.srs && me.srs[srsKey(topic, item)]) || null;
+
+// 答完一題就更新這張卡：答對往後推、答錯（或先錯後對）打回重來
+function srsGrade(topic, item, ok){
+  if (!me.srs) me.srs = {};
+  const k = srsKey(topic, item);
+  const c = ok ? Math.min(GAP.length - 1, ((me.srs[k] && me.srs[k].c) || 0) + 1) : 0;
+  me.srs[k] = { c, due: Date.now() + GAP[c] };
+}
+
+// 挑這一關要出的 5 張卡：到期的先出 → 沒看過的 → 都不到期就挑最快到期的
+// 連續答對 2 次以上的卡 due 會落在幾天後，等於自動退出這一輪，不會一直重複問同一題
+function pickCards(topic, lv, n){
+  const now = Date.now();
+  const pool = topic.items.filter(it => it.level <= lv);
+  const due = [], fresh = [], later = [];
+  shuffle(pool).forEach(it => {
+    const r = srsOf(topic, it);
+    if (!r) fresh.push(it);
+    else if (r.due <= now) due.push([r.due, it]);
+    else later.push([r.due, it]);
+  });
+  due.sort((a, b) => a[0] - b[0]);
+  later.sort((a, b) => a[0] - b[0]);
+  const out = due.map(x => x[1]);
+  for (const it of fresh) { if (out.length >= n) break; out.push(it); }
+  for (const x of later) { if (out.length >= n) break; out.push(x[1]); }
+  return out.slice(0, n);
+}
+
+// 地圖上顯示「現在有幾張該複習」
+function dueCount(topic){
+  const now = Date.now(), lv = lvOf(topic);
+  return topic.items.filter(it => {
+    if (it.level > lv) return false;
+    const r = srsOf(topic, it);
+    return !r || r.due <= now;
+  }).length;
+}
+
 // ---------- 出題 ----------
 let quiz = null, locked = false;
 
 function startQuiz(topic){
   if (topic.batch === 2 && !unlocked2()) return;
   const lv = lvOf(topic);
-  const pool = topic.items.filter(it => it.level <= lv);
-  quiz = { topic, qs: shuffle(pool.length >= 5 ? pool : topic.items).slice(0,5), i:0, log:[] };
+  const qs = pickCards(topic, lv, 5);
+  quiz = { topic, qs: qs.length ? qs : shuffle(topic.items).slice(0,5), i:0, log:[], miss:false };
   $("quizTitle").textContent = topic.icon + " " + topic.name + "　第 " + lv + " 級";
   locked = false;
   show("scQuiz"); nextQ();
@@ -250,8 +299,10 @@ function startQuiz(topic){
 function faceHTML(topic, item){
   if (topic.kind === "color") return '<div class="sw" style="background:' + item.img + '"></div>';
   if (topic.kind === "count") {
+    // 超過 12 個就別排 emoji 了，六歲數不完 —— 直接秀阿拉伯數字
+    if (item.img > COUNT_MAX_EMOJI) return '<div class="tx" style="font-size:88px">' + item.zh + '</div>';
     const e = COUNT_EMOJI[Math.floor(Math.random() * COUNT_EMOJI.length)];
-    return '<div class="cnt">' + e.repeat(item.img) + '</div>';
+    return '<div class="cnt">' + (item.img ? e.repeat(item.img) : "🚫") + '</div>';
   }
   return '<div class="em">' + item.img + '</div>';
 }
@@ -264,6 +315,7 @@ function nextQ(){
   $("prog").innerHTML = quiz.qs.map((_, k) =>
     '<div class="dot ' + (quiz.log[k] === true ? 'd' : quiz.log[k] === false ? 'x' : '') + '"></div>').join("");
 
+  quiz.miss = false;                 // 這一題答錯過沒有 —— 先錯後對不算「連續答對」
   $("qword").textContent = r.showWord ? item.word : "🎧";
   $("qhint").textContent = r.showWord
     ? (r.showZh ? "聽聽看：" + item.zh : "這個字是什麼意思？")
@@ -288,18 +340,23 @@ function answer(el, ok, item){
   if (ok){
     el.classList.add("ok"); beep(true); toast("🎉");
     me.score++;
+    srsGrade(quiz.topic, item, !quiz.miss);   // 先錯後對 → 不算答對，這張卡等一下還會出現
     me.streak[t] = Math.max(0, me.streak[t] || 0) + 1;
     if (me.streak[t] >= 4){ me.streak[t] = 0; me.levels[t] = Math.min(4, lvOf(quiz.topic) + 1); }
     quiz.log[quiz.i] = true; quiz.i++;
-    speak(item.word, .9);
+    speak(item.word, .85);
     save();
     setTimeout(() => { locked = false; nextQ(); }, 950);
   } else {
     el.classList.add("no"); beep(false);
+    quiz.miss = true;
+    me.score = Math.max(0, me.score - 0.5);   // 答錯扣 0.5 分（不會扣成負的）
+    srsGrade(quiz.topic, item, false);        // 這張卡打回重來，等一下再問一次
     me.streak[t] = Math.min(0, me.streak[t] || 0) - 1;
     if (me.streak[t] <= -2){ me.streak[t] = 0; me.levels[t] = Math.max(quiz.topic.minLev, lvOf(quiz.topic) - 1); }
-    quiz.log[quiz.i] = false;   // 記錄答錯，但不扣分、可以再試
-    setTimeout(() => { el.classList.remove("no"); locked = false; speak(item.word, .9); }, 700);
+    quiz.log[quiz.i] = false;   // 記錄答錯，可以再試；同一題答對就換下一題，所以只會扣一次
+    save();
+    setTimeout(() => { el.classList.remove("no"); locked = false; speak(item.word, .85); }, 700);
   }
 }
 
@@ -307,8 +364,8 @@ function finishQuiz(){
   const right = quiz.log.filter(Boolean).length;
   modal('<div style="font-size:70px">' + (right >= 4 ? "🏆" : "👍") + '</div>' +
     '<h2 style="margin:10px 0">這關答對 ' + right + ' 題！</h2>' +
-    '<p style="color:#64748b">目前 ' + me.score + ' 分' +
-      (me.score >= GOAL ? "，可以扭蛋囉 🎰" : "，再 " + (GOAL - me.score) + " 分可以扭蛋") + '</p>' +
+    '<p style="color:#64748b">目前 ' + fmt(me.score) + ' 分' +
+      (me.score >= GOAL ? "，可以扭蛋囉 🎰" : "，再 " + fmt(GOAL - me.score) + " 分可以扭蛋") + '</p>' +
     '<div style="margin-top:18px"><button class="btn g" id="mAgain">再玩一次</button> ' +
     '<button class="btn s" id="mBack">回地圖</button></div>');
   $("mAgain").onclick = () => { closeModal(); startQuiz(quiz.topic); };
@@ -337,8 +394,8 @@ function render(){
   if (!me) return;
   $("avatar").textContent = me.avatar || "🦄";
   $("who").textContent = me.name || "皙潔";
-  $("scoreNum").textContent = me.score;
-  $("scoreNum2").textContent = me.score;
+  $("scoreNum").textContent = fmt(me.score);
+  $("scoreNum2").textContent = fmt(me.score);
   $("gachaBox").classList.toggle("hide", me.score < GOAL);
   const open2 = unlocked2();
   const cardsOf = b => TOPICS.filter(t => t.batch === b).map(t => {
@@ -346,7 +403,8 @@ function render(){
     return '<div class="card' + (lock ? ' lock' : '') + '" data-t="' + t.id + '">' +
       '<span class="ic">' + (lock ? "🔒" : t.icon) + '</span>' +
       '<div class="nm">' + t.name + '</div>' +
-      '<div class="lv">' + (lock ? "還沒解鎖" : "第 " + lvOf(t) + " 級") + '</div></div>';
+      '<div class="lv">' + (lock ? "還沒解鎖"
+        : "第 " + lvOf(t) + " 級・複習 " + dueCount(t) + " 張") + '</div></div>';
   }).join("");
   $("topicGrid").innerHTML =
     '<div class="bt">第一批　基礎關卡</div>' + '<div class="grid g3">' + cardsOf(1) + '</div>' +
@@ -382,7 +440,7 @@ $("btnLogin").onclick = () => {
   load(c).then(() => show("scMain"));
 };
 $("codeInput").addEventListener("keydown", e => { if (e.key === "Enter") $("btnLogin").click(); });
-$("btnSpeak").onclick    = () => { if (quiz && quiz.qs[quiz.i]) speak(quiz.qs[quiz.i].word, .9); };
+$("btnSpeak").onclick    = () => { if (quiz && quiz.qs[quiz.i]) speak(quiz.qs[quiz.i].word, .85); };
 $("btnBack").onclick     = () => show("scMain");
 $("btnGacha").onclick    = gacha;
 $("btnOut").onclick      = () => { localStorage.removeItem(CODE_KEY); location.reload(); };

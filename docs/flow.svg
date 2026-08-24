@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 860" font-family="Noto Sans TC, Microsoft JhengHei, sans-serif">
+<rect width="1180" height="860" fill="#fffdf7"/>
+<text x="590" y="46" text-anchor="middle" font-size="30" font-weight="700" fill="#1f3b57">ACJ 皙潔英文闖關 × 寶可夢扭蛋　流程圖</text>
+<text x="590" y="74" text-anchor="middle" font-size="15" fill="#6b7a88">6 歲版本｜每題答對得分，滿 10 分＝一次扭蛋（沿用既有加分網站）</text>
+
+<g stroke="#94a3b8" stroke-width="2" fill="none" marker-end="url(#a)">
+<defs><marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 z" fill="#94a3b8"/></marker></defs>
+<path d="M170,150 L170,196"/><path d="M170,262 L170,308"/><path d="M170,374 L170,420"/>
+<path d="M280,340 L430,340"/>
+<path d="M540,150 L540,196"/><path d="M540,262 L540,308"/><path d="M540,374 L540,420"/><path d="M540,486 L540,532"/>
+<path d="M650,450 L900,450"/>
+<path d="M960,150 L960,196"/><path d="M960,262 L960,308"/><path d="M960,374 L960,420"/>
+<path d="M540,598 L540,644"/>
+<path d="M430,570 L300,570 L300,120 L440,120" />
+</g>
+
+<g font-size="16" fill="#0f2233">
+<rect x="60" y="100" width="220" height="50" rx="12" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/><text x="170" y="131" text-anchor="middle">① 開啟網站，選人物頭像</text>
+<rect x="60" y="196" width="220" height="66" rx="12" fill="#e0f2fe" stroke="#0ea5e9" stroke-width="2"/><text x="170" y="224" text-anchor="middle">② 選關卡地圖</text><text x="170" y="248" text-anchor="middle" font-size="13" fill="#475569">字母／單字／聽力／句型</text>
+<rect x="60" y="308" width="220" height="66" rx="12" fill="#e0f2fe" stroke="#0ea5e9" stroke-width="2"/><text x="170" y="336" text-anchor="middle">③ 進入一關（5 題）</text><text x="170" y="360" text-anchor="middle" font-size="13" fill="#475569">全語音提示，不用讀中文</text>
+<rect x="60" y="420" width="220" height="66" rx="12" fill="#fef9c3" stroke="#eab308" stroke-width="2"/><text x="170" y="448" text-anchor="middle">④ 出題（圖 + 音 + 選項）</text><text x="170" y="472" text-anchor="middle" font-size="13" fill="#475569">點圖／連連看／拼字</text>
+
+<rect x="430" y="100" width="220" height="50" rx="12" fill="#fef9c3" stroke="#eab308" stroke-width="2"/><text x="540" y="131" text-anchor="middle">⑤ 小朋友作答</text>
+<polygon points="540,196 660,229 540,262 420,229" fill="#fff7ed" stroke="#f97316" stroke-width="2"/><text x="540" y="235" text-anchor="middle">答對了嗎？</text>
+<rect x="430" y="308" width="220" height="66" rx="12" fill="#dcfce7" stroke="#22c55e" stroke-width="2"/><text x="540" y="336" text-anchor="middle">✔ 對：動畫＋音效 +1 分</text><text x="540" y="360" text-anchor="middle" font-size="13" fill="#475569">✘ 錯：溫和提示，可再試（不扣分）</text>
+<rect x="430" y="420" width="220" height="66" rx="12" fill="#dcfce7" stroke="#22c55e" stroke-width="2"/><text x="540" y="448" text-anchor="middle">⑥ 分數寫入雲端</text><text x="540" y="472" text-anchor="middle" font-size="13" fill="#475569">Firestore：同一「班級代碼」</text>
+<polygon points="540,532 690,565 540,598 390,565" fill="#fff7ed" stroke="#f97316" stroke-width="2"/><text x="540" y="571" text-anchor="middle">分數 ≥ 10？</text>
+<rect x="430" y="644" width="220" height="60" rx="12" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"/><text x="540" y="680" text-anchor="middle">否 → 回關卡地圖繼續闖</text>
+
+<rect x="850" y="100" width="220" height="50" rx="12" fill="#fce7f3" stroke="#ec4899" stroke-width="2"/><text x="960" y="131" text-anchor="middle">⑦ 扭蛋按鈕亮起 🎰</text>
+<rect x="850" y="196" width="220" height="66" rx="12" fill="#fce7f3" stroke="#ec4899" stroke-width="2"/><text x="960" y="224" text-anchor="middle">⑧ 扣 10 分，抽寶可夢</text><text x="960" y="248" text-anchor="middle" font-size="13" fill="#475569">151 隻，PokeAPI 官方圖</text>
+<rect x="850" y="308" width="220" height="66" rx="12" fill="#fce7f3" stroke="#ec4899" stroke-width="2"/><text x="960" y="336" text-anchor="middle">⑨ 開蛋動畫 → 進圖鑑</text><text x="960" y="360" text-anchor="middle" font-size="13" fill="#475569">collection 收藏，同步各裝置</text>
+<rect x="850" y="420" width="220" height="66" rx="12" fill="#ede9fe" stroke="#8b5cf6" stroke-width="2"/><text x="960" y="448" text-anchor="middle">⑩ 收藏冊：已抽 12/151</text><text x="960" y="472" text-anchor="middle" font-size="13" fill="#475569">回到地圖，繼續下一關</text>
+</g>
+<text x="900" y="560" font-size="14" fill="#64748b">虛線區＝直接沿用現有</text>
+<text x="900" y="582" font-size="14" fill="#64748b">classroom-gacha-rewards 的</text>
+<text x="900" y="604" font-size="14" fill="#64748b">扭蛋／收藏／雲端同步模組</text>
+<rect x="836" y="86" width="248" height="400" rx="16" fill="none" stroke="#c4b5fd" stroke-width="2" stroke-dasharray="8 6"/>
+<text x="416" y="826" font-size="14" fill="#64748b">新做的部分＝左側＋中間：關卡地圖、題庫、語音出題、答對加分寫回同一份 Firestore students[].score</text>
+</svg>

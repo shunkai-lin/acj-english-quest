@@ -1,0 +1,29 @@
+# ACJ 英文闖關 🎒
+
+給 6 歲小朋友的互動英文學習網頁：闖關答題加分，滿 10 分可以扭一顆寶可夢，收進個人圖鑑，資料即時雲端同步。
+
+**線上版**：https://shunkai-lin.github.io/acj-english-quest/
+
+## 玩法
+
+- 關卡：動物 🐶 ／ 顏色 🎨 ／ 數字 🔢，每關 5 題
+- 答對 +1 分，**答錯不扣分**，可以再試
+- 題目全程英文發音（瀏覽器內建語音，免音檔），🔊 按鈕可重聽
+- 滿 10 分出現扭蛋按鈕，扭一次扣 10 分，抽第一世代 151 隻寶可夢
+- 難度**自動升降**：連對 4 題升級（少一層提示），連錯 2 題降級，不顯示任何提示
+
+## 檔案
+
+| 檔案 | 內容 |
+|---|---|
+| `index.html` | 全部 UI + CSS + JS（單檔，無建置流程） |
+| `questions.js` | 題庫，加題不用改程式 |
+| `pokemon-data.js` | 151 隻寶可夢（PokeAPI 官方美術圖） |
+| `docs/設計.md` | 設計決策、難度四軸、類別擴充藍圖 |
+| `docs/flow.svg` | 流程圖 |
+
+## 資料
+
+共用 Firebase 專案 `classroom-gacha-rewards`，使用**獨立集合 `acjenglish`**，與班級加分扭蛋機（`classes`）、喵喵版（`kitty`）互不干擾。以「代碼即密碼」的無登入方式辨識使用者。
+
+Firestore 規則維護在 `classroom-gacha-rewards` 專案目錄，**一律用 CLI 部署**（`firebase deploy --only firestore:rules`）。

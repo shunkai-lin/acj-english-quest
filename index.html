@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>皙潔的英文闖關 🎒</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif;background:linear-gradient(160deg,#fff7e6,#e8f4ff);min-height:100vh;color:#1f3b57;user-select:none}
+.wrap{max-width:820px;margin:0 auto;padding:16px}
+.hide{display:none!important}
+.topbar{display:flex;align-items:center;gap:12px;background:#fff;border-radius:18px;padding:12px 16px;box-shadow:0 4px 14px rgba(0,0,0,.07);margin-bottom:16px}
+.avatar{font-size:56px}
+.who{font-weight:700;font-size:28px;flex:1}
+.score{background:#fef3c7;border:2px solid #f59e0b;border-radius:14px;padding:8px 18px;font-weight:800;font-size:34px}
+.btn{border:none;border-radius:20px;padding:18px 30px;font-size:28px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 3px 0 rgba(0,0,0,.12);transition:transform .08s}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.12)}
+.btn.p{background:#3b82f6;color:#fff}.btn.g{background:#22c55e;color:#fff}.btn.y{background:#f59e0b;color:#fff}
+.btn.s{background:#e2e8f0;color:#334155;font-size:20px;padding:12px 20px}
+h1{font-size:40px;text-align:center;margin:10px 0 6px}
+.sub{text-align:center;color:#64748b;margin-bottom:20px;font-size:22px}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}
+.card{background:#fff;border-radius:20px;padding:20px;text-align:center;box-shadow:0 4px 14px rgba(0,0,0,.08);cursor:pointer;border:3px solid transparent;transition:transform .1s}
+.card:active{transform:scale(.97)}
+.card .ic{font-size:96px;display:block}
+.card .nm{font-weight:700;margin-top:8px;font-size:28px}
+.card .lv{font-size:18px;color:#64748b;margin-top:4px}
+.qbox{background:#fff;border-radius:24px;padding:24px 20px;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.09)}
+.qword{font-size:84px;font-weight:800;letter-spacing:3px;margin:10px 0;line-height:1.1}
+.qhint{color:#64748b;font-size:26px;margin-bottom:6px}
+.spk{background:#fde68a;border:none;border-radius:50%;width:130px;height:130px;font-size:64px;cursor:pointer;box-shadow:0 6px 0 #d9a441;margin:10px}
+.spk:active{transform:translateY(3px);box-shadow:0 1px 0 #d9a441}
+.opts{margin-top:20px}
+.opt{background:#fff;border:4px solid #dbeafe;border-radius:20px;padding:16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:200px;transition:transform .1s}
+.opt:active{transform:scale(.96)}
+.opt.ok{border-color:#22c55e;background:#dcfce7}
+.opt.no{border-color:#f87171;background:#fee2e2;animation:shake .3s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.opt .em{font-size:108px;line-height:1.1}
+.opt .sw{width:130px;height:130px;border-radius:24px;border:2px solid rgba(0,0,0,.12)}
+.opt .tx{font-size:40px;font-weight:800;margin-top:8px}
+.opt .cnt{font-size:50px;line-height:1.15;max-width:280px;word-break:break-all}
+.prog{display:flex;gap:6px;justify-content:center;margin:14px 0}
+.dot{width:44px;height:16px;border-radius:8px;background:#e2e8f0}
+.dot.d{background:#22c55e}.dot.x{background:#f87171}
+.toast{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;font-size:110px;z-index:50}
+.gacha{background:linear-gradient(135deg,#fbcfe8,#fecaca);border-radius:20px;padding:16px;text-align:center;margin-bottom:16px;border:3px solid #ec4899}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:60;padding:20px}
+.mbox{background:#fff;border-radius:24px;padding:28px 22px;text-align:center;max-width:400px;width:100%}
+.mbox img{width:250px;height:250px;object-fit:contain}
+.coll{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-top:14px}
+.coll div{background:#fff;border-radius:16px;padding:8px;text-align:center;font-size:18px}
+.coll img{width:100%}
+input{font-family:inherit;font-size:28px;padding:12px;border:2px solid #cbd5e1;border-radius:12px;width:100%;text-align:center}
+.foot{text-align:center;margin-top:24px}
+@media(max-width:520px){.g3{grid-template-columns:1fr 1fr}.qword{font-size:60px}.opt .em{font-size:76px}.opt .sw{width:96px;height:96px}.spk{width:104px;height:104px;font-size:50px}.h1,h1{font-size:30px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 開場：輸入代碼 -->
+  <div id="scLogin">
+    <h1>皙潔的英文闖關 🎒</h1>
+    <p class="sub">輸入你的代碼，就能繼續上次的進度</p>
+    <div class="qbox">
+      <input id="codeInput" placeholder="例如 acj-shijie" autocomplete="off">
+      <div style="margin-top:14px"><button class="btn p" id="btnLogin">開始 ▶</button></div>
+      <p style="color:#94a3b8;font-size:13px;margin-top:12px">代碼就是密碼，換手機輸入同一組就看得到同樣的分數與圖鑑</p>
+    </div>
+  </div>
+
+  <!-- 主畫面 -->
+  <div id="scMain" class="hide">
+    <div class="topbar">
+      <span class="avatar" id="avatar">🦄</span>
+      <span class="who" id="who">皙潔</span>
+      <span class="score"><span id="scoreNum">0</span> 分</span>
+    </div>
+
+    <div id="gachaBox" class="gacha hide">
+      <div style="font-size:30px;font-weight:800;margin-bottom:10px">🎉 滿 10 分了！可以扭蛋囉</div>
+      <button class="btn y" id="btnGacha">🎰 扭一顆寶可夢（扣 10 分）</button>
+    </div>
+
+    <h1>選一個關卡</h1>
+    <p class="sub">每關 5 題，答對加 1 分，答錯不扣分 💛</p>
+    <div class="grid g3" id="topicGrid"></div>
+
+    <div class="foot">
+      <button class="btn s" id="btnColl">📖 我的寶可夢圖鑑</button>
+      <button class="btn s" id="btnOut">換人</button>
+    </div>
+  </div>
+
+  <!-- 答題 -->
+  <div id="scQuiz" class="hide">
+    <div class="topbar">
+      <button class="btn s" id="btnBack">← 回地圖</button>
+      <span class="who" id="quizTitle"></span>
+      <span class="score"><span id="scoreNum2">0</span> 分</span>
+    </div>
+    <div class="prog" id="prog"></div>
+    <div class="qbox">
+      <p class="qhint" id="qhint">聽聽看，這是什麼？</p>
+      <div class="qword" id="qword"></div>
+      <button class="spk" id="btnSpeak">🔊</button>
+    </div>
+    <div class="grid g2 opts" id="opts"></div>
+  </div>
+
+  <!-- 圖鑑 -->
+  <div id="scColl" class="hide">
+    <div class="topbar">
+      <button class="btn s" id="btnCollBack">← 回地圖</button>
+      <span class="who">我的圖鑑</span>
+      <span class="score"><span id="collNum">0</span> 隻</span>
+    </div>
+    <div class="coll" id="collGrid"></div>
+  </div>
+
+</div>
+
+<div id="toast" class="toast hide"></div>
+<div id="modal" class="modal hide"><div class="mbox" id="mbox"></div></div>
+
+<script src="pokemon-data.js"></script>
+<script src="questions.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAQll2Xvf321l3c9WYQehXFinMXY6u8LGc",
+  authDomain: "classroom-gacha-rewards.firebaseapp.com",
+  projectId: "classroom-gacha-rewards",
+  storageBucket: "classroom-gacha-rewards.firebasestorage.app",
+  messagingSenderId: "508693241214",
+  appId: "1:508693241214:web:8d8c0dbb5ee0dfca5de72f"
+};
+const db = getFirestore(initializeApp(firebaseConfig));
+const COL = "acjenglish";          // 獨立集合，與加分網站 classes / kitty 互不干擾
+const GOAL = 10;
+const CODE_KEY = "acj_code";
+
+const $ = id => document.getElementById(id);
+const show = id => ["scLogin","scMain","scQuiz","scColl"].forEach(s => $(s).classList.toggle("hide", s !== id));
+
+// ---------- 資料 ----------
+let code = "", me = null, unsub = null;
+const blank = () => ({ name:"皙潔", avatar:"🦄", score:0, collection:[],
+  levels:{animal:1,color:1,number:1}, streak:{animal:0,color:0,number:0} });
+
+// 沿用加分網站的資料形狀（students / prizes），扭蛋與圖鑑模組可直接共用
+const save = () => setDoc(doc(db, COL, code), { students:[me], prizes:[] });
+
+async function load(c){
+  code = c; localStorage.setItem(CODE_KEY, c);
+  const ref = doc(db, COL, c);
+  const snap = await getDoc(ref);
+  if (!snap.exists()) { me = blank(); await save(); }
+  if (unsub) unsub();
+  unsub = onSnapshot(ref, s => {
+    const d = s.data(); if (!d || !d.students || !d.students[0]) return;
+    me = Object.assign(blank(), d.students[0]);
+    render();
+  });
+}
+
+// ---------- 發音 ----------
+// Chrome/Edge 的兩個老毛病：
+//  1) cancel() 之後「立刻」speak() 會被吞掉 → 一律隔一小段時間再送
+//  2) 閒置一陣子後 speechSynthesis 會卡住不發聲 → 送出前先 resume()
+const TTS = window.speechSynthesis || null;
+let voice = null, ttsReady = false;
+
+function pickVoice(){
+  if (!TTS) return;
+  const vs = TTS.getVoices().filter(v => v.lang && v.lang.toLowerCase().startsWith("en"));
+  if (!vs.length) return;
+  voice = vs.find(v => /Google US English|Samantha|Zira|Aria/i.test(v.name))
+       || vs.find(v => /en-US/i.test(v.lang)) || vs[0];
+  ttsReady = true;
+}
+if (TTS){ TTS.onvoiceschanged = pickVoice; pickVoice(); }
+
+let speakTimer = null;
+function speak(text, rate = 0.8){
+  if (!TTS) return;
+  clearTimeout(speakTimer);
+  try { TTS.cancel(); } catch(e){}
+  speakTimer = setTimeout(() => {
+    try{
+      if (!ttsReady) pickVoice();          // 語音清單可能到現在才載好
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "en-US"; u.rate = rate; u.pitch = 1.1; u.volume = 1;
+      if (voice) u.voice = voice;
+      TTS.resume();                        // 解卡
+      TTS.speak(u);
+    }catch(e){}
+  }, 130);
+}
+// 有些瀏覽器閒置後會自動 pause，定時戳一下維持可用
+setInterval(() => { try{ if (TTS && !TTS.speaking) TTS.resume(); }catch(e){} }, 8000);
+function beep(ok){
+  try{
+    const ac = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.connect(g); g.connect(ac.destination);
+    o.frequency.value = ok ? 880 : 220; g.gain.value = .12;
+    o.start(); o.stop(ac.currentTime + (ok ? .16 : .25));
+  }catch(e){}
+}
+
+// ---------- 難度：依等級決定「拿掉多少輔助」（見 docs/設計.md） ----------
+// L1 圖+音+中文 2選1 ／ L2 圖+音+英文 3選1 ／ L3 只有音 3選1 ／ L4 只有音 4選1
+const rule = lv => ({
+  1:{ showWord:true,  showZh:true,  n:2 },
+  2:{ showWord:true,  showZh:false, n:3 },
+  3:{ showWord:false, showZh:false, n:3 },
+  4:{ showWord:false, showZh:false, n:4 }
+}[Math.min(4, Math.max(1, lv))]);
+
+const shuffle = a => a.slice().sort(() => Math.random() - .5);
+
+// ---------- 出題 ----------
+let quiz = null, locked = false;
+
+function startQuiz(topic){
+  const lv = me.levels[topic.id] || 1;
+  const pool = topic.items.filter(it => it.level <= Math.max(1, lv));
+  quiz = { topic, qs: shuffle(pool.length >= 5 ? pool : topic.items).slice(0,5), i:0, log:[] };
+  $("quizTitle").textContent = topic.icon + " " + topic.name + "　第 " + lv + " 級";
+  locked = false;
+  show("scQuiz"); nextQ();
+}
+
+function faceHTML(topic, item){
+  if (topic.kind === "color") return '<div class="sw" style="background:' + item.img + '"></div>';
+  if (topic.kind === "count") {
+    const e = COUNT_EMOJI[Math.floor(Math.random() * COUNT_EMOJI.length)];
+    return '<div class="cnt">' + e.repeat(item.img) + '</div>';
+  }
+  return '<div class="em">' + item.img + '</div>';
+}
+
+function nextQ(){
+  if (quiz.i >= quiz.qs.length) return finishQuiz();
+  const topic = quiz.topic, item = quiz.qs[quiz.i];
+  const lv = me.levels[topic.id] || 1, r = rule(lv);
+
+  $("prog").innerHTML = quiz.qs.map((_, k) =>
+    '<div class="dot ' + (quiz.log[k] === true ? 'd' : quiz.log[k] === false ? 'x' : '') + '"></div>').join("");
+
+  $("qword").textContent = r.showWord ? item.word : "🎧";
+  $("qhint").textContent = r.showWord
+    ? (r.showZh ? "聽聽看：" + item.zh : "這個字是什麼意思？")
+    : "只用耳朵聽，選出正確的！";
+  speak(item.word);
+
+  const others = shuffle(topic.items.filter(x => x.word !== item.word));
+  const opts = shuffle([item].concat(others.slice(0, r.n - 1)));
+
+  $("opts").innerHTML = opts.map(o =>
+    '<div class="opt" data-w="' + o.word + '">' + faceHTML(topic, o) +
+    (r.showZh ? '<div class="tx">' + o.zh + '</div>' : '') + '</div>').join("");
+
+  [...$("opts").children].forEach(el =>
+    el.onclick = () => answer(el, el.dataset.w === item.word, item));
+}
+
+function answer(el, ok, item){
+  if (locked) return;
+  locked = true;
+  const t = quiz.topic.id;
+  if (ok){
+    el.classList.add("ok"); beep(true); toast("🎉");
+    me.score++;
+    me.streak[t] = Math.max(0, me.streak[t] || 0) + 1;
+    if (me.streak[t] >= 4){ me.streak[t] = 0; me.levels[t] = Math.min(4, (me.levels[t] || 1) + 1); }
+    quiz.log[quiz.i] = true; quiz.i++;
+    speak(item.word, .8);
+    save();
+    setTimeout(() => { locked = false; nextQ(); }, 950);
+  } else {
+    el.classList.add("no"); beep(false);
+    me.streak[t] = Math.min(0, me.streak[t] || 0) - 1;
+    if (me.streak[t] <= -2){ me.streak[t] = 0; me.levels[t] = Math.max(1, (me.levels[t] || 1) - 1); }
+    quiz.log[quiz.i] = false;   // 記錄答錯，但不扣分、可以再試
+    setTimeout(() => { el.classList.remove("no"); locked = false; speak(item.word, .7); }, 700);
+  }
+}
+
+function finishQuiz(){
+  const right = quiz.log.filter(Boolean).length;
+  modal('<div style="font-size:70px">' + (right >= 4 ? "🏆" : "👍") + '</div>' +
+    '<h2 style="margin:10px 0">這關答對 ' + right + ' 題！</h2>' +
+    '<p style="color:#64748b">目前 ' + me.score + ' 分' +
+      (me.score >= GOAL ? "，可以扭蛋囉 🎰" : "，再 " + (GOAL - me.score) + " 分可以扭蛋") + '</p>' +
+    '<div style="margin-top:18px"><button class="btn g" id="mAgain">再玩一次</button> ' +
+    '<button class="btn s" id="mBack">回地圖</button></div>');
+  $("mAgain").onclick = () => { closeModal(); startQuiz(quiz.topic); };
+  $("mBack").onclick  = () => { closeModal(); show("scMain"); };
+  save();
+}
+
+// ---------- 扭蛋（沿用加分網站規則：滿 10 分、扣 10 分） ----------
+function gacha(){
+  if (me.score < GOAL) return;
+  me.score -= GOAL;
+  const p = POKEMON_LIST[Math.floor(Math.random() * POKEMON_LIST.length)];
+  const isNew = !me.collection.some(c => c.name === p.name);
+  me.collection.push({ type:"pokemon", name:p.name, img:p.img, time:new Date().toISOString() });
+  save();
+  modal('<div style="font-size:56px">🎊</div><img src="' + p.img + '" alt="">' +
+    '<h2 style="margin:6px 0">' + p.name + '</h2>' +
+    '<p style="color:' + (isNew ? "#e11d48" : "#64748b") + ';font-weight:700">' +
+      (isNew ? "✨ 新的！" : "已經有了，再收一隻") + '</p>' +
+    '<div style="margin-top:16px"><button class="btn p" id="mOk">收下 ✓</button></div>');
+  $("mOk").onclick = closeModal;
+}
+
+// ---------- UI ----------
+function render(){
+  if (!me) return;
+  $("avatar").textContent = me.avatar || "🦄";
+  $("who").textContent = me.name || "皙潔";
+  $("scoreNum").textContent = me.score;
+  $("scoreNum2").textContent = me.score;
+  $("gachaBox").classList.toggle("hide", me.score < GOAL);
+  $("topicGrid").innerHTML = TOPICS.map(t =>
+    '<div class="card" data-t="' + t.id + '"><span class="ic">' + t.icon + '</span>' +
+    '<div class="nm">' + t.name + '</div><div class="lv">第 ' + (me.levels[t.id] || 1) + ' 級</div></div>').join("");
+  [...$("topicGrid").children].forEach(el =>
+    el.onclick = () => startQuiz(TOPICS.find(t => t.id === el.dataset.t)));
+  $("collNum").textContent = me.collection.length;
+}
+
+function toast(t){
+  const el = $("toast"); el.textContent = t; el.classList.remove("hide");
+  setTimeout(() => el.classList.add("hide"), 700);
+}
+const modal = html => { $("mbox").innerHTML = html; $("modal").classList.remove("hide"); };
+const closeModal = () => $("modal").classList.add("hide");
+
+$("btnLogin").onclick = () => {
+  const c = $("codeInput").value.trim().toLowerCase();
+  if (!c) return alert("請先輸入代碼");
+  speak("Hello");                      // 順便解鎖手機瀏覽器的語音權限
+  load(c).then(() => show("scMain"));
+};
+$("codeInput").addEventListener("keydown", e => { if (e.key === "Enter") $("btnLogin").click(); });
+$("btnSpeak").onclick    = () => { if (quiz && quiz.qs[quiz.i]) speak(quiz.qs[quiz.i].word, .7); };
+$("btnBack").onclick     = () => show("scMain");
+$("btnGacha").onclick    = gacha;
+$("btnOut").onclick      = () => { localStorage.removeItem(CODE_KEY); location.reload(); };
+$("btnColl").onclick     = () => {
+  $("collGrid").innerHTML = me.collection.length
+    ? me.collection.map(c => '<div><img src="' + c.img + '"><div>' + c.name + '</div></div>').join("")
+    : '<p style="color:#64748b">還沒有寶可夢，去闖關賺分數吧！</p>';
+  show("scColl");
+};
+$("btnCollBack").onclick = () => show("scMain");
+$("modal").onclick = e => { if (e.target.id === "modal") closeModal(); };
+
+const saved = localStorage.getItem(CODE_KEY);
+if (saved) { $("codeInput").value = saved; load(saved).then(() => show("scMain")); }
+</script>
+</body>
+</html>

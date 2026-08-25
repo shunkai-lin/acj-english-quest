@@ -43,6 +43,7 @@ h1{font-size:40px;text-align:center;margin:10px 0 6px}
 .opt .em{font-size:108px;line-height:1.1}
 .opt .sw{width:130px;height:130px;border-radius:24px;border:2px solid rgba(0,0,0,.12)}
 .opt .tx{font-size:40px;font-weight:800;margin-top:8px}
+.opt .cw{font-size:32px;letter-spacing:1px;color:#334155;word-break:break-word}
 .opt .cnt{font-size:50px;line-height:1.15;max-width:280px;word-break:break-all}
 .prog{display:flex;gap:6px;justify-content:center;margin:14px 0}
 .dot{width:44px;height:16px;border-radius:8px;background:#e2e8f0}
@@ -325,8 +326,11 @@ function nextQ(){
   const others = shuffle(topic.items.filter(x => x.word !== item.word));
   const opts = shuffle([item].concat(others.slice(0, r.n - 1)));
 
+  // 顏色關的色塊自己不會說話（薄荷綠／奶油色這種更是分不出來），一律把英文單字寫在色塊下面
+  const showOptWord = topic.kind === "color";
   $("opts").innerHTML = opts.map(o =>
     '<div class="opt" data-w="' + o.word + '">' + faceHTML(topic, o) +
+    (showOptWord ? '<div class="tx cw">' + o.word + '</div>' : '') +
     (r.showZh ? '<div class="tx">' + o.zh + '</div>' : '') + '</div>').join("");
 
   [...$("opts").children].forEach(el =>
@@ -418,7 +422,7 @@ function render(){
   if (open2 && !me.seen2 && !$("scMain").classList.contains("hide")){
     me.seen2 = true; save();
     modal('<div style="font-size:80px">🎓</div><h2 style="margin:10px 0">晉級第二批！</h2>' +
-      '<p style="color:#64748b;font-size:20px">解鎖 7 個新關卡：食物、身體、家人、交通、形狀、學校、天氣<br>' +
+      '<p style="color:#64748b;font-size:20px">解鎖 7 個新關卡：食物、身體、人物、交通、形狀、學校、天氣<br>' +
       '新關卡比較難，<b>一開始就沒有中文提示</b>喔！<br>第一批隨時都可以回去玩 💛</p>' +
       '<div style="margin-top:18px"><button class="btn g" id="mOk2">我準備好了！</button></div>');
     $("mOk2").onclick = closeModal;

@@ -200,30 +200,53 @@ function pickVoice(){
 if (TTS){ TTS.onvoiceschanged = pickVoice; pickVoice(); }
 
 let speakTimer = null;
-function speak(text, rate = 0.85){
+// delay：想讓提示音先響完再唸字時用（兩個一起出來會互相削波，聽起來就是破音）
+function speak(text, rate = 0.85, delay = 0){
   if (!TTS) return;
   clearTimeout(speakTimer);
-  try { TTS.cancel(); } catch(e){}
+  const busy = TTS.speaking || TTS.pending;
+  try { if (busy) TTS.cancel(); } catch(e){}   // 沒在唸就不要 cancel，白白多一次卡頓
   speakTimer = setTimeout(() => {
     try{
       if (!ttsReady) pickVoice();          // 語音清單可能到現在才載好
       const u = new SpeechSynthesisUtterance(text);
-      u.lang = "en-US"; u.rate = rate; u.pitch = 1.1; u.volume = 1;
+      u.lang = "en-US";
+      u.rate   = rate;
+      u.pitch  = 1;      // 破音主因：音高拉到 1.1，Windows／Android 內建語音會出現金屬撕裂聲
+      u.volume = .85;    // 滿音量在手機小喇叭上會削波，退一點反而更清楚
       if (voice) u.voice = voice;
-      TTS.resume();                        // 解卡
+      if (TTS.paused) TTS.resume();
       TTS.speak(u);
     }catch(e){}
-  }, 130);
+  }, delay + (busy ? 200 : 60));           // cancel 完要多留一點時間，不然尾音會被切成破的
 }
-// 有些瀏覽器閒置後會自動 pause，定時戳一下維持可用
-setInterval(() => { try{ if (TTS && !TTS.speaking) TTS.resume(); }catch(e){} }, 8000);
+// 有些瀏覽器閒置後會自動 pause，定時戳一下維持可用（正在唸／排隊中就別戳，會把字弄斷）
+setInterval(() => { try{ if (TTS && !TTS.speaking && !TTS.pending) TTS.resume(); }catch(e){} }, 8000);
+
+// 提示音：整頁共用一個 AudioContext。原本每按一次就 new 一個，Chrome 上限約 6 個，
+// 超過就開不出來，還沒超過時也會互相搶資源，聲音跟著糊掉。
+let AC = null;
+function actx(){
+  const C = window.AudioContext || window.webkitAudioContext;
+  if (!C) return null;
+  if (!AC) AC = new C();
+  if (AC.state === "suspended") { try { AC.resume(); } catch(e){} }
+  return AC;
+}
 function beep(ok){
   try{
-    const ac = new (window.AudioContext || window.webkitAudioContext)();
+    const ac = actx(); if (!ac) return;
     const o = ac.createOscillator(), g = ac.createGain();
+    o.type = "sine";
     o.connect(g); g.connect(ac.destination);
-    o.frequency.value = ok ? 880 : 220; g.gain.value = .12;
-    o.start(); o.stop(ac.currentTime + (ok ? .16 : .25));
+    o.frequency.value = ok ? 880 : 220;
+    const t = ac.currentTime, dur = ok ? .16 : .25;
+    // 音量做斜坡進出。原本直接 gain=.12 硬開硬關，頭尾各有一聲「啪」的爆音
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(.07, t + .02);
+    g.gain.setValueAtTime(.07, t + dur - .06);
+    g.gain.linearRampToValueAtTime(0, t + dur);
+    o.start(t); o.stop(t + dur + .02);
   }catch(e){}
 }
 
@@ -348,7 +371,7 @@ function answer(el, ok, item){
     me.streak[t] = Math.max(0, me.streak[t] || 0) + 1;
     if (me.streak[t] >= 4){ me.streak[t] = 0; me.levels[t] = Math.min(4, lvOf(quiz.topic) + 1); }
     quiz.log[quiz.i] = true; quiz.i++;
-    speak(item.word, .85);
+    speak(item.word, .85, 240);            // 等「答對」的提示音響完再唸，兩個疊在一起會破音
     save();
     setTimeout(() => { locked = false; nextQ(); }, 950);
   } else {
@@ -440,6 +463,7 @@ const closeModal = () => $("modal").classList.add("hide");
 $("btnLogin").onclick = () => {
   const c = $("codeInput").value.trim().toLowerCase();
   if (!c) return alert("請先輸入代碼");
+  actx();                              // 順便解鎖 AudioContext（手機一定要在點擊當下開）
   speak("Hello");                      // 順便解鎖手機瀏覽器的語音權限
   load(c).then(() => show("scMain"));
 };

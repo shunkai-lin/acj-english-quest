@@ -7,6 +7,13 @@
 //
 // 每個關卡固定 30 張字卡；每次出哪幾張由 SRS 間隔重複決定（見 index.html 的 pickCards）
 
+// 寶可夢關卡用的小工具：只寫「英文名 + 圖鑑編號 + 等級」，中文名與官方美術圖直接吃 POKEMON_LIST
+// （index.html 先載 pokemon-data.js 再載 questions.js，所以這裡拿得到）
+const pk = (word, id, level) => {
+  const p = POKEMON_LIST.find(x => x.id === id) || {};
+  return { word, zh: p.name, img: p.img, level };
+};
+
 const TOPICS = [
 
   // ───────────── 第一批：起跳 L1，永遠開著，可以隨時回來複習 ─────────────
@@ -363,6 +370,100 @@ const TOPICS = [
       { word: "summer",    zh: "夏天",   img: "🏖️", level: 4, nearMiss: ["swimmer", "winter"] },
       { word: "autumn",    zh: "秋天",   img: "🍁", level: 4, nearMiss: ["auto", "album"] },
       { word: "winter",    zh: "冬天",   img: "⛄", level: 4, nearMiss: ["water", "windy"] }
+    ]
+  },
+
+  // ───────────── 第三批：新題型，起跳 L1（句子本身就比單字難，輔助先給滿） ─────────────
+  //
+  // kind=talk：上面先出一張情境圖 + 唸出「別人說的話」（ask），下面選正確的回答（word）
+  //   ask/askZh = 對方說的話與中文；word/zh = 正確回答與中文；img = 回答用的小圖；scene = 上方情境圖
+  // kind=pic ：圖是寶可夢官方美術圖（吃 POKEMON_LIST，questions.js 在 pokemon-data.js 之後載入）
+  {
+    id: "talk", name: "生活對話", icon: "💬", kind: "talk", batch: 3, minLev: 1,
+    items: [
+      { ask: "How are you?",            askZh: "你好嗎？",           scene: "🙋‍♀️",
+        word: "I'm fine, thank you.",   zh: "我很好，謝謝",          img: "😊", level: 1 },
+      { ask: "What's your name?",       askZh: "你叫什麼名字？",     scene: "👧",
+        word: "My name is Amy.",        zh: "我叫 Amy",              img: "🪪", level: 1 },
+      { ask: "How old are you?",        askZh: "你幾歲？",           scene: "🎈",
+        word: "I'm six years old.",     zh: "我六歲",                img: "6️⃣", level: 1 },
+      { ask: "Good morning!",           askZh: "早安！",             scene: "🌞",
+        word: "Good morning, teacher!", zh: "老師早安！",            img: "🌅", level: 1 },
+      { ask: "Thank you!",              askZh: "謝謝你！",           scene: "🎁",
+        word: "You're welcome.",        zh: "不客氣",                img: "🤗", level: 1 },
+      { ask: "Goodbye!",                askZh: "再見！",             scene: "🚶",
+        word: "Bye-bye! See you tomorrow.", zh: "掰掰，明天見",      img: "👋", level: 1 },
+
+      { ask: "What color is it?",       askZh: "這是什麼顏色？",     scene: "🖍️",
+        word: "It's red.",              zh: "是紅色的",              img: "🔴", level: 2 },
+      { ask: "What's this?",            askZh: "這是什麼？",         scene: "❓",
+        word: "It's a dog.",            zh: "這是一隻狗",            img: "🐶", level: 2 },
+      { ask: "How's the weather?",      askZh: "天氣怎麼樣？",       scene: "🌤️",
+        word: "It's sunny today.",      zh: "今天是晴天",            img: "☀️", level: 2 },
+      { ask: "Are you hungry?",         askZh: "你餓了嗎？",         scene: "🍜",
+        word: "Yes, I'm hungry.",       zh: "對，我肚子餓了",        img: "🍽️", level: 2 },
+      { ask: "Can I have some water?",  askZh: "可以給我一點水嗎？", scene: "🥛",
+        word: "Sure, here you are.",    zh: "當然，給你",            img: "💧", level: 2 },
+      { ask: "I'm sorry.",              askZh: "對不起。",           scene: "😔",
+        word: "It's OK. Don't worry.",  zh: "沒關係，別擔心",        img: "🙆", level: 2 },
+      { ask: "Nice to meet you.",       askZh: "很高興認識你。",     scene: "👫",
+        word: "Nice to meet you, too.", zh: "我也很高興認識你",      img: "🤝", level: 2 },
+      { ask: "What do you want to eat?", askZh: "你想吃什麼？",      scene: "🍱",
+        word: "I want an apple, please.", zh: "我想要一顆蘋果",      img: "🍎", level: 2 },
+
+      { ask: "Where are you going?",    askZh: "你要去哪裡？",       scene: "🚸",
+        word: "I'm going to school.",   zh: "我要去學校",            img: "🏫", level: 3 },
+      { ask: "What time is it?",        askZh: "現在幾點？",         scene: "⏰",
+        word: "It's eight o'clock.",    zh: "八點了",                img: "🕗", level: 3 },
+      { ask: "How much is it?",         askZh: "這個多少錢？",       scene: "🏪",
+        word: "It's ten dollars.",      zh: "十塊錢",                img: "💰", level: 3 },
+      { ask: "Do you like ice cream?",  askZh: "你喜歡冰淇淋嗎？",   scene: "😋",
+        word: "Yes, I like it very much.", zh: "喜歡，我超喜歡的",   img: "🍦", level: 3 },
+      { ask: "May I come in?",          askZh: "我可以進來嗎？",     scene: "🔔",
+        word: "Yes, please come in.",   zh: "可以，請進",            img: "🚪", level: 3 },
+      { ask: "Let's play together!",    askZh: "我們一起玩！",       scene: "🧸",
+        word: "OK, that sounds fun!",   zh: "好啊，聽起來很好玩",    img: "🤸", level: 3 },
+      { ask: "Happy birthday!",         askZh: "生日快樂！",         scene: "🎉",
+        word: "Thank you! I'm so happy.", zh: "謝謝！我好開心",      img: "🎂", level: 3 },
+      { ask: "What's your favorite animal?", askZh: "你最喜歡什麼動物？", scene: "🦁",
+        word: "I like cats best.",      zh: "我最喜歡貓",            img: "🐱", level: 3 },
+
+      { ask: "Where do you live?",      askZh: "你住在哪裡？",       scene: "🗺️",
+        word: "I live in Tainan.",      zh: "我住在台南",            img: "🏠", level: 4 },
+      { ask: "How do you go to school?", askZh: "你怎麼去學校？",    scene: "🛣️",
+        word: "I go by bus.",           zh: "我搭公車",              img: "🚌", level: 4 },
+      { ask: "What are you doing?",     askZh: "你在做什麼？",       scene: "🤔",
+        word: "I'm reading a book.",    zh: "我在看書",              img: "📖", level: 4 },
+      { ask: "What happened?",          askZh: "發生什麼事了？",     scene: "😢",
+        word: "I hurt my knee.",        zh: "我的膝蓋受傷了",        img: "🩹", level: 4 },
+      { ask: "Can you help me?",        askZh: "你可以幫我嗎？",     scene: "🙏",
+        word: "Of course, no problem.", zh: "當然，沒問題",          img: "💪", level: 4 },
+      { ask: "What day is it today?",   askZh: "今天星期幾？",       scene: "🗓️",
+        word: "It's Monday.",           zh: "今天星期一",            img: "📅", level: 4 },
+      { ask: "Good night!",             askZh: "晚安！",             scene: "🛏️",
+        word: "Good night! Sweet dreams.", zh: "晚安，做個好夢",     img: "🌙", level: 4 },
+      { ask: "Excuse me, where is the toilet?", askZh: "不好意思，廁所在哪裡？", scene: "🚻",
+        word: "It's over there.",       zh: "在那邊",                img: "👉", level: 4 }
+    ]
+  },
+  {
+    id: "pokemon", name: "寶可夢", icon: "⚡", kind: "pic", batch: 3, minLev: 1,
+    // 圖與中文名直接吃 pokemon-data.js 的 POKEMON_LIST（同一張官方美術圖，跟圖鑑裡看到的一樣）
+    items: [
+      pk("Pikachu",    25, 1), pk("Eevee",     133, 1), pk("Ditto",     132, 1),
+      pk("Onix",       95, 1), pk("Mew",       151, 1), pk("Zubat",      41, 1),
+
+      pk("Squirtle",    7, 2), pk("Bulbasaur",   1, 2), pk("Charmander",  4, 2),
+      pk("Jigglypuff", 39, 2), pk("Meowth",     52, 2), pk("Psyduck",    54, 2),
+      pk("Snorlax",   143, 2), pk("Gengar",     94, 2),
+
+      pk("Magikarp",  129, 3), pk("Gyarados",  130, 3), pk("Machop",     66, 3),
+      pk("Geodude",    74, 3), pk("Lapras",    131, 3), pk("Vulpix",     37, 3),
+      pk("Growlithe",  58, 3), pk("Slowpoke",   79, 3),
+
+      pk("Charizard",   6, 4), pk("Blastoise",   9, 4), pk("Venusaur",    3, 4),
+      pk("Mewtwo",    150, 4), pk("Articuno",  144, 4), pk("Zapdos",    145, 4),
+      pk("Moltres",   146, 4), pk("Dragonite", 149, 4)
     ]
   }
 ];

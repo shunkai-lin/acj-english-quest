@@ -292,9 +292,12 @@ function pickCards(topic, lv, n){
   });
   due.sort((a, b) => a[0] - b[0]);
   later.sort((a, b) => a[0] - b[0]);
-  const out = due.map(x => x[1]);
-  for (const it of fresh) { if (out.length >= n) break; out.push(it); }
-  for (const x of later) { if (out.length >= n) break; out.push(x[1]); }
+  // 同一輪不要出現同一個字兩次 —— 兩隻尼多蘭都叫 Nidoran，只是圖不一樣
+  const seen = new Set(), out = [];
+  const add = it => { if (!seen.has(it.word)) { seen.add(it.word); out.push(it); } };
+  due.forEach(x => add(x[1]));
+  for (const it of fresh) { if (out.length >= n) break; add(it); }
+  for (const x of later) { if (out.length >= n) break; add(x[1]); }
   return out.slice(0, n);
 }
 

@@ -31,8 +31,6 @@ h1{font-size:40px;text-align:center;margin:10px 0 6px}
 .card .lv{font-size:18px;color:#64748b;margin-top:4px}
 .qbox{background:#fff;border-radius:24px;padding:24px 20px;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.09)}
 .qword{font-size:84px;font-weight:800;letter-spacing:3px;margin:10px 0;line-height:1.1}
-.qword.sent{font-size:44px;letter-spacing:0;line-height:1.25}
-.qpic{font-size:120px;line-height:1.1;margin:2px 0 4px}
 .qhint{color:#64748b;font-size:26px;margin-bottom:6px}
 .spk{background:#fde68a;border:none;border-radius:50%;width:130px;height:130px;font-size:64px;cursor:pointer;box-shadow:0 6px 0 #d9a441;margin:10px}
 .spk:active{transform:translateY(3px);box-shadow:0 1px 0 #d9a441}
@@ -47,9 +45,6 @@ h1{font-size:40px;text-align:center;margin:10px 0 6px}
 .opt .tx{font-size:40px;font-weight:800;margin-top:8px}
 .opt .cw{font-size:32px;letter-spacing:1px;color:#334155;word-break:break-word}
 .opt .pk{width:150px;height:150px;object-fit:contain}
-.opt.tk .em{font-size:64px}
-.opt.tk .tx{font-size:24px}
-.opt.tk .cw{font-size:26px;line-height:1.3}
 .opt .cnt{font-size:50px;line-height:1.15;max-width:280px;word-break:break-all}
 .prog{display:flex;gap:6px;justify-content:center;margin:14px 0}
 .dot{width:44px;height:16px;border-radius:8px;background:#e2e8f0}
@@ -64,7 +59,7 @@ h1{font-size:40px;text-align:center;margin:10px 0 6px}
 .coll img{width:100%}
 input{font-family:inherit;font-size:28px;padding:12px;border:2px solid #cbd5e1;border-radius:12px;width:100%;text-align:center}
 .foot{text-align:center;margin-top:24px}
-@media(max-width:520px){.g3{grid-template-columns:1fr 1fr}.qword{font-size:60px}.qword.sent{font-size:30px}.qpic{font-size:88px}.opt .pk{width:108px;height:108px}.opt.tk .em{font-size:48px}.opt.tk .cw{font-size:21px}.opt.tk .tx{font-size:20px}.opt .em{font-size:76px}.opt .sw{width:96px;height:96px}.spk{width:104px;height:104px;font-size:50px}.h1,h1{font-size:30px}}
+@media(max-width:520px){.g3{grid-template-columns:1fr 1fr}.qword{font-size:60px}.opt .pk{width:108px;height:108px}.opt .em{font-size:76px}.opt .sw{width:96px;height:96px}.spk{width:104px;height:104px;font-size:50px}.h1,h1{font-size:30px}}
 </style>
 </head>
 <body>
@@ -113,7 +108,6 @@ input{font-family:inherit;font-size:28px;padding:12px;border:2px solid #cbd5e1;b
     </div>
     <div class="prog" id="prog"></div>
     <div class="qbox">
-      <div class="qpic hide" id="qpic"></div>
       <p class="qhint" id="qhint">聽聽看，這是什麼？</p>
       <div class="qword" id="qword"></div>
       <button class="spk" id="btnSpeak">🔊</button>
@@ -327,9 +321,6 @@ function startQuiz(topic){
   show("scQuiz"); nextQ();
 }
 
-// 題目要唸的是哪一句：對話關唸「對方說的話」，其他關唸單字本身
-const askOf = (topic, item) => topic.kind === "talk" ? item.ask : item.word;
-
 function faceHTML(topic, item){
   if (topic.kind === "pic") return '<img class="pk" src="' + item.img + '" alt="">';
   if (topic.kind === "color") return '<div class="sw" style="background:' + item.img + '"></div>';
@@ -352,27 +343,18 @@ function nextQ(){
 
   quiz.miss = false;                 // 這一題答錯過沒有 —— 先錯後對不算「連續答對」
 
-  // 對話關：上面先出一張情境圖，唸的是「對方說的話」，選項才是回答
-  const talk = topic.kind === "talk";
-  $("qpic").textContent = talk ? item.scene : "";
-  $("qpic").classList.toggle("hide", !talk);
-  $("qword").className = "qword" + (talk && r.showWord ? " sent" : "");   // 只有真的秀出整句時才縮字級，🎧 維持大圖示
-  $("qword").textContent = r.showWord ? askOf(topic, item) : "🎧";
-  $("qhint").textContent = talk
-    ? (r.showWord ? (r.showZh ? "他說：" + item.askZh : "他說了什麼？要怎麼回答？")
-                  : "只用耳朵聽，選出正確的回答！")
-    : (r.showWord ? (r.showZh ? "聽聽看：" + item.zh : "這個字是什麼意思？")
-                  : "只用耳朵聽，選出正確的！");
-  speak(askOf(topic, item));
+  $("qword").textContent = r.showWord ? item.word : "🎧";
+  $("qhint").textContent = r.showWord ? (r.showZh ? "聽聽看：" + item.zh : "這個字是什麼意思？")
+                                      : "只用耳朵聽，選出正確的！";
+  speak(item.word);
 
   const others = shuffle(topic.items.filter(x => x.word !== item.word));
   const opts = shuffle([item].concat(others.slice(0, r.n - 1)));
 
   // 顏色關的色塊自己不會說話（薄荷綠／奶油色這種更是分不出來），一律把英文單字寫在色塊下面
-  // 對話關的選項是整句回答，一定要把英文句子寫出來（小圖只是幫她縮小範圍）
-  const showOptWord = topic.kind === "color" || talk;
+  const showOptWord = topic.kind === "color";
   $("opts").innerHTML = opts.map(o =>
-    '<div class="opt' + (talk ? ' tk' : '') + '" data-w="' + o.word + '">' + faceHTML(topic, o) +
+    '<div class="opt" data-w="' + o.word + '">' + faceHTML(topic, o) +
     (showOptWord ? '<div class="tx cw">' + o.word + '</div>' : '') +
     (r.showZh ? '<div class="tx">' + o.zh + '</div>' : '') + '</div>').join("");
 
@@ -403,7 +385,7 @@ function answer(el, ok, item){
     if (me.streak[t] <= -2){ me.streak[t] = 0; me.levels[t] = Math.max(quiz.topic.minLev, lvOf(quiz.topic) - 1); }
     quiz.log[quiz.i] = false;   // 記錄答錯，可以再試；同一題答對就換下一題，所以只會扣一次
     save();
-    setTimeout(() => { el.classList.remove("no"); locked = false; speak(askOf(quiz.topic, item), .85); }, 700);
+    setTimeout(() => { el.classList.remove("no"); locked = false; speak(item.word, .85); }, 700);
   }
 }
 
@@ -457,7 +439,7 @@ function render(){
     '<div class="bt">第一批　基礎關卡</div>' + '<div class="grid g3">' + cardsOf(1) + '</div>' +
     '<div class="bt">第二批　進階關卡' + (open2 ? '' : '　🔒 第一批三關都到第 ' + UNLOCK_LEVEL + ' 級就打開') + '</div>' +
     '<div class="grid g3">' + cardsOf(2) + '</div>' +
-    '<div class="bt">第三批　新題型　💬 聽對話選回答／⚡ 看圖記英文名</div>' +
+    '<div class="bt">第三批　新題型　⚡ 看官方美術圖記英文名</div>' +
     '<div class="grid g3">' + cardsOf(3) + '</div>';
   [...$("topicGrid").querySelectorAll(".card:not(.lock)")].forEach(el =>
     el.onclick = () => startQuiz(TOPICS.find(t => t.id === el.dataset.t)));
@@ -490,7 +472,7 @@ $("btnLogin").onclick = () => {
   load(c).then(() => show("scMain"));
 };
 $("codeInput").addEventListener("keydown", e => { if (e.key === "Enter") $("btnLogin").click(); });
-$("btnSpeak").onclick    = () => { if (quiz && quiz.qs[quiz.i]) speak(askOf(quiz.topic, quiz.qs[quiz.i]), .85); };
+$("btnSpeak").onclick    = () => { if (quiz && quiz.qs[quiz.i]) speak(quiz.qs[quiz.i].word, .85); };
 $("btnBack").onclick     = () => show("scMain");
 $("btnGacha").onclick    = gacha;
 $("btnOut").onclick      = () => { localStorage.removeItem(CODE_KEY); location.reload(); };

@@ -5,7 +5,7 @@
 // minLev  這個關卡的「起跳難度」——第二批從 L2 起跳（一開始就沒有中文提示）
 // level   這題最早在第幾級出現
 //
-// 每個關卡固定 30 張字卡；每次出哪幾張由 SRS 間隔重複決定（見 index.html 的 pickCards）
+// 每個關卡 30 張字卡（寶可夢關例外，整本圖鑑 253 張全收）；每次出哪幾張由 SRS 間隔重複決定（見 index.html 的 pickCards）
 
 // 寶可夢關卡用的小工具：只寫「英文名 + 圖鑑編號 + 等級」，中文名與官方美術圖直接吃 POKEMON_LIST
 // （index.html 先載 pokemon-data.js 再載 questions.js，所以這裡拿得到）
@@ -373,97 +373,106 @@ const TOPICS = [
     ]
   },
 
-  // ───────────── 第三批：新題型，起跳 L1（句子本身就比單字難，輔助先給滿） ─────────────
+  // ───────────── 第三批：新題型，起跳 L1（不上鎖，隨時可以玩） ─────────────
   //
-  // kind=talk：上面先出一張情境圖 + 唸出「別人說的話」（ask），下面選正確的回答（word）
-  //   ask/askZh = 對方說的話與中文；word/zh = 正確回答與中文；img = 回答用的小圖；scene = 上方情境圖
   // kind=pic ：圖是寶可夢官方美術圖（吃 POKEMON_LIST，questions.js 在 pokemon-data.js 之後載入）
-  {
-    id: "talk", name: "生活對話", icon: "💬", kind: "talk", batch: 3, minLev: 1,
-    items: [
-      { ask: "How are you?",            askZh: "你好嗎？",           scene: "🙋‍♀️",
-        word: "I'm fine, thank you.",   zh: "我很好，謝謝",          img: "😊", level: 1 },
-      { ask: "What's your name?",       askZh: "你叫什麼名字？",     scene: "👧",
-        word: "My name is Amy.",        zh: "我叫 Amy",              img: "🪪", level: 1 },
-      { ask: "How old are you?",        askZh: "你幾歲？",           scene: "🎈",
-        word: "I'm six years old.",     zh: "我六歲",                img: "6️⃣", level: 1 },
-      { ask: "Good morning!",           askZh: "早安！",             scene: "🌞",
-        word: "Good morning, teacher!", zh: "老師早安！",            img: "🌅", level: 1 },
-      { ask: "Thank you!",              askZh: "謝謝你！",           scene: "🎁",
-        word: "You're welcome.",        zh: "不客氣",                img: "🤗", level: 1 },
-      { ask: "Goodbye!",                askZh: "再見！",             scene: "🚶",
-        word: "Bye-bye! See you tomorrow.", zh: "掰掰，明天見",      img: "👋", level: 1 },
-
-      { ask: "What color is it?",       askZh: "這是什麼顏色？",     scene: "🖍️",
-        word: "It's red.",              zh: "是紅色的",              img: "🔴", level: 2 },
-      { ask: "What's this?",            askZh: "這是什麼？",         scene: "❓",
-        word: "It's a dog.",            zh: "這是一隻狗",            img: "🐶", level: 2 },
-      { ask: "How's the weather?",      askZh: "天氣怎麼樣？",       scene: "🌤️",
-        word: "It's sunny today.",      zh: "今天是晴天",            img: "☀️", level: 2 },
-      { ask: "Are you hungry?",         askZh: "你餓了嗎？",         scene: "🍜",
-        word: "Yes, I'm hungry.",       zh: "對，我肚子餓了",        img: "🍽️", level: 2 },
-      { ask: "Can I have some water?",  askZh: "可以給我一點水嗎？", scene: "🥛",
-        word: "Sure, here you are.",    zh: "當然，給你",            img: "💧", level: 2 },
-      { ask: "I'm sorry.",              askZh: "對不起。",           scene: "😔",
-        word: "It's OK. Don't worry.",  zh: "沒關係，別擔心",        img: "🙆", level: 2 },
-      { ask: "Nice to meet you.",       askZh: "很高興認識你。",     scene: "👫",
-        word: "Nice to meet you, too.", zh: "我也很高興認識你",      img: "🤝", level: 2 },
-      { ask: "What do you want to eat?", askZh: "你想吃什麼？",      scene: "🍱",
-        word: "I want an apple, please.", zh: "我想要一顆蘋果",      img: "🍎", level: 2 },
-
-      { ask: "Where are you going?",    askZh: "你要去哪裡？",       scene: "🚸",
-        word: "I'm going to school.",   zh: "我要去學校",            img: "🏫", level: 3 },
-      { ask: "What time is it?",        askZh: "現在幾點？",         scene: "⏰",
-        word: "It's eight o'clock.",    zh: "八點了",                img: "🕗", level: 3 },
-      { ask: "How much is it?",         askZh: "這個多少錢？",       scene: "🏪",
-        word: "It's ten dollars.",      zh: "十塊錢",                img: "💰", level: 3 },
-      { ask: "Do you like ice cream?",  askZh: "你喜歡冰淇淋嗎？",   scene: "😋",
-        word: "Yes, I like it very much.", zh: "喜歡，我超喜歡的",   img: "🍦", level: 3 },
-      { ask: "May I come in?",          askZh: "我可以進來嗎？",     scene: "🔔",
-        word: "Yes, please come in.",   zh: "可以，請進",            img: "🚪", level: 3 },
-      { ask: "Let's play together!",    askZh: "我們一起玩！",       scene: "🧸",
-        word: "OK, that sounds fun!",   zh: "好啊，聽起來很好玩",    img: "🤸", level: 3 },
-      { ask: "Happy birthday!",         askZh: "生日快樂！",         scene: "🎉",
-        word: "Thank you! I'm so happy.", zh: "謝謝！我好開心",      img: "🎂", level: 3 },
-      { ask: "What's your favorite animal?", askZh: "你最喜歡什麼動物？", scene: "🦁",
-        word: "I like cats best.",      zh: "我最喜歡貓",            img: "🐱", level: 3 },
-
-      { ask: "Where do you live?",      askZh: "你住在哪裡？",       scene: "🗺️",
-        word: "I live in Tainan.",      zh: "我住在台南",            img: "🏠", level: 4 },
-      { ask: "How do you go to school?", askZh: "你怎麼去學校？",    scene: "🛣️",
-        word: "I go by bus.",           zh: "我搭公車",              img: "🚌", level: 4 },
-      { ask: "What are you doing?",     askZh: "你在做什麼？",       scene: "🤔",
-        word: "I'm reading a book.",    zh: "我在看書",              img: "📖", level: 4 },
-      { ask: "What happened?",          askZh: "發生什麼事了？",     scene: "😢",
-        word: "I hurt my knee.",        zh: "我的膝蓋受傷了",        img: "🩹", level: 4 },
-      { ask: "Can you help me?",        askZh: "你可以幫我嗎？",     scene: "🙏",
-        word: "Of course, no problem.", zh: "當然，沒問題",          img: "💪", level: 4 },
-      { ask: "What day is it today?",   askZh: "今天星期幾？",       scene: "🗓️",
-        word: "It's Monday.",           zh: "今天星期一",            img: "📅", level: 4 },
-      { ask: "Good night!",             askZh: "晚安！",             scene: "🛏️",
-        word: "Good night! Sweet dreams.", zh: "晚安，做個好夢",     img: "🌙", level: 4 },
-      { ask: "Excuse me, where is the toilet?", askZh: "不好意思，廁所在哪裡？", scene: "🚻",
-        word: "It's over there.",       zh: "在那邊",                img: "👉", level: 4 }
-    ]
-  },
   {
     id: "pokemon", name: "寶可夢", icon: "⚡", kind: "pic", batch: 3, minLev: 1,
     // 圖與中文名直接吃 pokemon-data.js 的 POKEMON_LIST（同一張官方美術圖，跟圖鑑裡看到的一樣）
     items: [
-      pk("Pikachu",    25, 1), pk("Eevee",     133, 1), pk("Ditto",     132, 1),
-      pk("Onix",       95, 1), pk("Mew",       151, 1), pk("Zubat",      41, 1),
+      // L1：50 張
+      pk("Weedle",     13, 1), pk("Kakuna",     14, 1), pk("Pidgey",     16, 1),
+      pk("Fearow",     22, 1), pk("Ekans",      23, 1), pk("Arbok",      24, 1),
+      pk("Pikachu",    25, 1), pk("Raichu",     26, 1), pk("Zubat",      41, 1),
+      pk("Golbat",     42, 1), pk("Oddish",     43, 1), pk("Gloom",      44, 1),
+      pk("Paras",      46, 1), pk("Mankey",     56, 1), pk("Abra",       63, 1),
+      pk("Golem",      76, 1), pk("Ponyta",     77, 1), pk("Doduo",      84, 1),
+      pk("Dodrio",     85, 1), pk("Seel",       86, 1), pk("Grimer",     88, 1),
+      pk("Muk",        89, 1), pk("Gastly",     92, 1), pk("Onix",       95, 1),
+      pk("Hypno",      97, 1), pk("Krabby",     98, 1), pk("Cubone",    104, 1),
+      pk("Rhydon",    112, 1), pk("Horsea",    116, 1), pk("Seadra",    117, 1),
+      pk("Staryu",    120, 1), pk("Mr. Mime",  122, 1), pk("Jynx",      124, 1),
+      pk("Magmar",    126, 1), pk("Pinsir",    127, 1), pk("Tauros",    128, 1),
+      pk("Ditto",     132, 1), pk("Eevee",     133, 1), pk("Mew",       151, 1),
+      pk("Pichu",     172, 1), pk("Natu",      177, 1), pk("Xatu",      178, 1),
+      pk("Aipom",     190, 1), pk("Yanma",     193, 1), pk("Unown",     201, 1),
+      pk("Magby",     240, 1), pk("Entei",     244, 1), pk("Lugia",     249, 1),
+      pk("Ho-Oh",     250, 1), pk("Snom",      872, 1),
 
-      pk("Squirtle",    7, 2), pk("Bulbasaur",   1, 2), pk("Charmander",  4, 2),
-      pk("Jigglypuff", 39, 2), pk("Meowth",     52, 2), pk("Psyduck",    54, 2),
-      pk("Snorlax",   143, 2), pk("Gengar",     94, 2),
+      // L2：60 張
+      pk("Bulbasaur",     1, 2), pk("Ivysaur",       2, 2), pk("Charmander",    4, 2),
+      pk("Squirtle",      7, 2), pk("Metapod",      11, 2), pk("Pidgeot",      18, 2),
+      pk("Rattata",      19, 2), pk("Spearow",      21, 2), pk("Jigglypuff",   39, 2),
+      pk("Venonat",      48, 2), pk("Diglett",      50, 2), pk("Dugtrio",      51, 2),
+      pk("Meowth",       52, 2), pk("Persian",      53, 2), pk("Psyduck",      54, 2),
+      pk("Golduck",      55, 2), pk("Poliwag",      60, 2), pk("Kadabra",      64, 2),
+      pk("Machoke",      67, 2), pk("Machamp",      68, 2), pk("Slowbro",      80, 2),
+      pk("Dewgong",      87, 2), pk("Haunter",      93, 2), pk("Gengar",       94, 2),
+      pk("Drowzee",      96, 2), pk("Kingler",      99, 2), pk("Voltorb",     100, 2),
+      pk("Marowak",     105, 2), pk("Koffing",     109, 2), pk("Weezing",     110, 2),
+      pk("Rhyhorn",     111, 2), pk("Chansey",     113, 2), pk("Tangela",     114, 2),
+      pk("Goldeen",     118, 2), pk("Seaking",     119, 2), pk("Starmie",     121, 2),
+      pk("Scyther",     123, 2), pk("Jolteon",     135, 2), pk("Flareon",     136, 2),
+      pk("Kabuto",      140, 2), pk("Snorlax",     143, 2), pk("Furret",      162, 2),
+      pk("Ledyba",      165, 2), pk("Ledian",      166, 2), pk("Crobat",      169, 2),
+      pk("Cleffa",      173, 2), pk("Togepi",      175, 2), pk("Mareep",      179, 2),
+      pk("Marill",      183, 2), pk("Hoppip",      187, 2), pk("Wooper",      194, 2),
+      pk("Espeon",      196, 2), pk("Pineco",      204, 2), pk("Gligar",      207, 2),
+      pk("Scizor",      212, 2), pk("Slugma",      218, 2), pk("Swinub",      220, 2),
+      pk("Phanpy",      231, 2), pk("Elekid",      239, 2), pk("Raikou",      243, 2),
 
-      pk("Magikarp",  129, 3), pk("Gyarados",  130, 3), pk("Machop",     66, 3),
-      pk("Geodude",    74, 3), pk("Lapras",    131, 3), pk("Vulpix",     37, 3),
-      pk("Growlithe",  58, 3), pk("Slowpoke",   79, 3),
+      // L3：70 張
+      pk("Caterpie",    10, 3), pk("Beedrill",    15, 3), pk("Raticate",    20, 3),
+      pk("Nidorina",    30, 3), pk("Nidorino",    33, 3), pk("Nidoking",    34, 3),
+      pk("Clefairy",    35, 3), pk("Clefable",    36, 3), pk("Vulpix",      37, 3),
+      pk("Parasect",    47, 3), pk("Venomoth",    49, 3), pk("Primeape",    57, 3),
+      pk("Growlithe",   58, 3), pk("Arcanine",    59, 3), pk("Alakazam",    65, 3),
+      pk("Machop",      66, 3), pk("Geodude",     74, 3), pk("Graveler",    75, 3),
+      pk("Rapidash",    78, 3), pk("Slowpoke",    79, 3), pk("Magneton",    82, 3),
+      pk("Shellder",    90, 3), pk("Cloyster",    91, 3), pk("Magikarp",   129, 3),
+      pk("Gyarados",   130, 3), pk("Lapras",     131, 3), pk("Vaporeon",   134, 3),
+      pk("Porygon",    137, 3), pk("Omanyte",    138, 3), pk("Omastar",    139, 3),
+      pk("Kabutops",   141, 3), pk("Dratini",    147, 3), pk("Bayleef",    153, 3),
+      pk("Meganium",   154, 3), pk("Quilava",    156, 3), pk("Totodile",   158, 3),
+      pk("Croconaw",   159, 3), pk("Sentret",    161, 3), pk("Hoothoot",   163, 3),
+      pk("Noctowl",    164, 3), pk("Spinarak",   167, 3), pk("Ariados",    168, 3),
+      pk("Chinchou",   170, 3), pk("Lanturn",    171, 3), pk("Togetic",    176, 3),
+      pk("Flaaffy",    180, 3), pk("Ampharos",   181, 3), pk("Politoed",   186, 3),
+      pk("Skiploom",   188, 3), pk("Jumpluff",   189, 3), pk("Sunkern",    191, 3),
+      pk("Sunflora",   192, 3), pk("Quagsire",   195, 3), pk("Umbreon",    197, 3),
+      pk("Murkrow",    198, 3), pk("Slowking",   199, 3), pk("Steelix",    208, 3),
+      pk("Shuckle",    213, 3), pk("Sneasel",    215, 3), pk("Corsola",    222, 3),
+      pk("Mantine",    226, 3), pk("Kingdra",    230, 3), pk("Donphan",    232, 3),
+      pk("Porygon2",   233, 3), pk("Tyrogue",    236, 3), pk("Miltank",    241, 3),
+      pk("Blissey",    242, 3), pk("Suicune",    245, 3), pk("Pupitar",    247, 3),
+      pk("Heatran",    485, 3),
 
-      pk("Charizard",   6, 4), pk("Blastoise",   9, 4), pk("Venusaur",    3, 4),
-      pk("Mewtwo",    150, 4), pk("Articuno",  144, 4), pk("Zapdos",    145, 4),
-      pk("Moltres",   146, 4), pk("Dragonite", 149, 4)
+      // L4：73 張
+      pk("Venusaur",          3, 4), pk("Charmeleon",        5, 4), pk("Charizard",         6, 4),
+      pk("Wartortle",         8, 4), pk("Blastoise",         9, 4), pk("Butterfree",       12, 4),
+      pk("Pidgeotto",        17, 4), pk("Sandshrew",        27, 4), pk("Sandslash",        28, 4),
+      pk("Nidoran Female",   29, 4), pk("Nidoqueen",        31, 4), pk("Nidoran Male",     32, 4),
+      pk("Ninetales",        38, 4), pk("Wigglytuff",       40, 4), pk("Vileplume",        45, 4),
+      pk("Poliwhirl",        61, 4), pk("Poliwrath",        62, 4), pk("Bellsprout",       69, 4),
+      pk("Weepinbell",       70, 4), pk("Victreebel",       71, 4), pk("Tentacool",        72, 4),
+      pk("Tentacruel",       73, 4), pk("Magnemite",        81, 4), pk("Farfetch'd",       83, 4),
+      pk("Electrode",       101, 4), pk("Exeggcute",       102, 4), pk("Exeggutor",       103, 4),
+      pk("Hitmonlee",       106, 4), pk("Hitmonchan",      107, 4), pk("Lickitung",       108, 4),
+      pk("Kangaskhan",      115, 4), pk("Electabuzz",      125, 4), pk("Aerodactyl",      142, 4),
+      pk("Articuno",        144, 4), pk("Zapdos",          145, 4), pk("Moltres",         146, 4),
+      pk("Dragonair",       148, 4), pk("Dragonite",       149, 4), pk("Mewtwo",          150, 4),
+      pk("Chikorita",       152, 4), pk("Cyndaquil",       155, 4), pk("Typhlosion",      157, 4),
+      pk("Feraligatr",      160, 4), pk("Igglybuff",       174, 4), pk("Bellossom",       182, 4),
+      pk("Azumarill",       184, 4), pk("Sudowoodo",       185, 4), pk("Misdreavus",      200, 4),
+      pk("Wobbuffet",       202, 4), pk("Girafarig",       203, 4), pk("Forretress",      205, 4),
+      pk("Dunsparce",       206, 4), pk("Snubbull",        209, 4), pk("Granbull",        210, 4),
+      pk("Qwilfish",        211, 4), pk("Heracross",       214, 4), pk("Teddiursa",       216, 4),
+      pk("Ursaring",        217, 4), pk("Magcargo",        219, 4), pk("Piloswine",       221, 4),
+      pk("Remoraid",        223, 4), pk("Octillery",       224, 4), pk("Delibird",        225, 4),
+      pk("Skarmory",        227, 4), pk("Houndour",        228, 4), pk("Houndoom",        229, 4),
+      pk("Stantler",        234, 4), pk("Smeargle",        235, 4), pk("Hitmontop",       237, 4),
+      pk("Smoochum",        238, 4), pk("Larvitar",        246, 4), pk("Tyranitar",       248, 4),
+      pk("Cresselia",       488, 4)
     ]
   }
 ];
